@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, abort, make_response, Blueprint
 from flask_restful import Api, Resource, reqparse, fields, marshal
-
-app = Flask(__name__, static_url_path="")
+from run import app
+views = Blueprint('views', __name__)
 api = Api(app)
 RIDES = [
     {
@@ -103,6 +103,3 @@ class Rideoffer(Resource):
 api.add_resource(RideofferList, '/api/v1/rides', endpoint='rides')
 api.add_resource(Rideoffer, '/api/v1/rides/<int:rideId>', endpoint='ride')
 
-
-if __name__ == '__main__':
-    app.run(debug=True)
