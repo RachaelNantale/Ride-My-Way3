@@ -1,13 +1,17 @@
 from flask import Flask, jsonify, abort, make_response, Blueprint
 from flask_restful import Api, Resource, reqparse, fields, marshal
-import api
-from api.views import views
-from api import  views
-app = Flask(__name__, static_url_path="")
+from app.api import views
+from app.api.views import app_bp
 
 
 
-app.register_blueprint(views)
+app = Flask(__name__)
+
+
+
+
+
+app.register_blueprint(app_bp)
 
 
 if __name__ == '__main__':
