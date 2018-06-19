@@ -6,9 +6,8 @@ class RideOffers:
     """
     class for ride offers
     """
-    def __init__(self, rideId, driver,pickup_point,destination,time):
+    def __init__(self, driver,pickup_point,destination,time):
         self.id = uuid.uuid4().hex
-        self.rideId = rideId
         self.driver = driver
         self.pickup_point = pickup_point
         self.destination = destination

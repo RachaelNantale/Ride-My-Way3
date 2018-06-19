@@ -1,18 +1,12 @@
-from flask import Flask, jsonify, abort, make_response, Blueprint
-from flask_restful import Api, Resource, reqparse, fields, marshal
-from app.api import views
-from app.api.views import app_bp
+import os
 
+from app import create_app
 
+config_name = os.getenv('APP_SETTINGS') # config_name = "development"
+if not config_name:
+    config_name ="development"
 
-app = Flask(__name__)
-
-
-
-
-
-app.register_blueprint(app_bp)
-
+app = create_app(config_name)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
