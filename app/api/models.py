@@ -1,28 +1,52 @@
 import uuid
 import json
+from flask import jsonify
 
 
 class RideOffers:
     """
     class for ride offers
     """
-    def __init__(self, driver,pickup_point,destination,time):
-        self.id = uuid.uuid4().hex
+    def __init__(self, driver,pickup_point,destination,time,done):
+        self.id = uuid.uuid4().int
         self.driver = driver
         self.pickup_point = pickup_point
         self.destination = destination
         self.time = time
+        self.done =done
+
+    def get_id(self):
+        return self.id
+
+    def get_driver(self):
+        return self.driver
+
+    def get_pickup_point(self):
+        return self.pickup_point
+
+    def get_destination(self):
+        return self.destination
+
+    def get_time(self):
+        return self.time
+    
+    def get_done(self):
+        return self.done
+
+
+    
 
     def json(self):
         """
-        json representation of the Order model
+        json representation of the Ride model
         """
         return json.dumps({
             'id': self.id,
-            'driver':self.driver,
-            'pickup_point':self.pickup_point,
-            'destination':self.destination,
-            'time':self.time 
+            'Driver':self.driver,
+            'Pickup Point':self.pickup_point,
+            'Destination':self.destination,
+            'Time':self.time,
+            'done':self.done
             })
 
 
