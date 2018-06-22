@@ -1,32 +1,36 @@
 import unittest
 import json
 import pprint
-from run import app
+from app import create_app
+from tests.BaseTest import BaseTest
 
-class TestClass(unittest.TestCase):
 
-    def setUp(self):
-        # self.app = create_app("testing")
-        self.client = app.test_client
-
-        self.rideoffer_body = {
-            "rideId": 1,
-            "driver": "Amos Quito",
-            "Pickup Point": "kanjokya",
-            "Destination": "Bukoto street",
-            "Time": "7:00pm",
-            "done":False
-            }
+class TestClass(BaseTest):
 
     def test_create_rideoffer(self):
         """Test API can create a Ride offer """
-        res = self.client().post('/api/v1/rides', data=self.rideoffer_body)
+        res = self.client().post('/api/v1/rides',
+                                 content_type='application/json',
+                                 data=json.dumps(self.rideoffer_body))
+        print(res)
         self.assertEqual(res.status_code, 201)
-        self.assertIn('Pickup Point', str(res.data))
 
+    def test_get_all_rides(self):
+        """Test API can view all."""
+        res = self.client().post('/api/v1/rides/',
+                                 content_type='application/json',
+                                 data=json.dumps(self.rideoffer_body))
+        print(res)
+        self.assertEqual(res.status_code, 201)
+        res = self.client().get('/api/v1/rides')
+        print(res)
+        self.assertEqual(res.status_code, 200)
 
-
-
-
-if __name__ == "__main__":
-    unittest.main()
+    def test_fetch_single_id(self):
+        """Test API can view single id."""
+        resp = self.client().get('/api/v1/rides/<int:id>',
+                                 content_type='application/json',
+                                 data=json.dumps(self.rideoffer_body))
+        reply = resp.data
+        self.assertEqual(len(reply.rideffer_body), 1)
+        self.assertEqual(resp.status_code, 200)
