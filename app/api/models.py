@@ -7,13 +7,14 @@ class RideOffers:
     """
     class for ride offers
     """
-    def __init__(self, driver,pickup_point,destination,time,done):
-        self.id = uuid.uuid4().int
+
+    def __init__(self, driver, pickup_point, destination, time, done):
+        self.id = uuid.uuid4().hex
         self.driver = driver
         self.pickup_point = pickup_point
         self.destination = destination
         self.time = time
-        self.done =done
+        self.done = done
 
     def get_id(self):
         return self.id
@@ -29,25 +30,22 @@ class RideOffers:
 
     def get_time(self):
         return self.time
-    
+
     def get_done(self):
         return self.done
 
-
-    
-
-    def json(self):
+    def to_json(self):
         """
         json representation of the Ride model
         """
-        return json.dumps({
+        return {
             'id': self.id,
-            'Driver':self.driver,
-            'Pickup Point':self.pickup_point,
-            'Destination':self.destination,
-            'Time':self.time,
-            'done':self.done
-            })
+            'Driver': self.driver,
+            'Pickup Point': self.pickup_point,
+            'Destination': self.destination,
+            'Time': self.time,
+            'done': self.done
+        }
 
 
 class User:
@@ -61,18 +59,13 @@ class User:
         self.email = email
         self.password = password
         self.phone = phone
-    
 
     def json(self):
-        return json.dumps({
+        return {
             'id': self.id,
             'name': self.name,
             'email': self.email,
             'password': self.password,
-            'phone':self.phone
-            
-        })
+            'phone': self.phone
 
-
-
-
+        }

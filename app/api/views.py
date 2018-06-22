@@ -1,35 +1,9 @@
 from flask import Flask, jsonify, abort, make_response, Blueprint
-from flask_restful import Api, Resource, reqparse, fields, marshal
+from flask_restful import Api, Resource, reqparse, fields
 from app.api.models import RideOffers, User
 app_bp = Blueprint('app', __name__)
 api = Api(app_bp)
-# RIDES = [
-#     {
-# 	"rideId": 1,
-#     "driver": "Amos Quito",
-#     "Pickup Point": "kanjokya",
-#     "Destination": "Bukoto street",
-#     "Time": "7:00pm",
-#     "done":False
-# },
-#  {
-# 	"rideId": 2,
-# "driver": "Amos Quito",
-# "pickup_point": "kanjokya",
-# "Destination": "Bukoto street",
-# "Time": "7:00pm",
-# "done":True
-# }
-# ]
 
-RIDES_fields = {
-    'driver': fields.String,
-    'pickup_point': fields.String,
-    'destination': fields.String,
-    'time': fields.String,
-    'done': fields.Boolean,
-    'uri': fields.Url('app.ride')
-}
 
 RIDES = []
 
@@ -52,40 +26,17 @@ class RideofferList(Resource):
         super(RideofferList, self).__init__()
 
     def get(self):
-        # return {'rides': [marshal(task, RIDES_fields) for task in RIDES]}
-        # print(RIDES)
-        
-         for ride in RIDES:
-            print(RIDES)
-            print('+++++++++++++++++++++BODA============')
-
-            if ride.get_id() == id:
-                ride = {
-                    "id": ride["id"],
-                    "driver": ride['driver'],
-                    "pickup_point": ride['pickup_point'],
-                    "Destination": ride['Destination'],
-                    "Time": ride['Time'],
-                    "done": ride['done']
-
-                }
-                print(RIDES)
-                print('++++++++++++++++++++GUY+============')
-                RIDES.append(ride)
-                response = {'Ride Offer': ride}
-                print(RIDES)
-                print('+++++++++++++++++HERMAN++++============')
-                
-                return make_response(response), 200
+        json_rides = [ride.to_json() for ride in RIDES]
+        return make_response(jsonify(json_rides), 200)
 
     def post(self):
         args = self.reqparse.parse_args()
         ride = RideOffers(args['driver'], args['pickup_point'],
                           args['Destination'], args['Time'], False)
         RIDES.append(ride)
-        # response = {'Ride offers': ride}
+
         return make_response(jsonify({
-            'message': 'Ride Offer Succesfully Created',
+            'message': 'Ride Offer Created with id: ' + ride.get_id(),
             'status': 'success'
         }), 201)
 
@@ -102,39 +53,32 @@ class Rideoffer(Resource):
         super(Rideoffer, self).__init__()
 
     def get(self, id):
-        # tasky = []
-        # for task in RIDES:
-        #     if task["rideId"] == rideId:
-        #         tasky.append(task)
-
-        task = [task for task in RIDES if task['id'] == id]
-
-        if len(task) == 0:
-            abort(404)
-            return make_response(jsonify({
-                'message': 'Ride Offer Succesfully Created',
-                'status': 'success'
-            }), 201)
-        # return {'ride': marshal(task[0], RIDES_fields)}
+        for ride in RIDES:
+            if ride.get_id() == id:
+                print(ride.get_id())
+                return make_response(jsonify(
+                    ride.to_json()
+                ), 200)
+        return make_response(jsonify({"message": "Ride not found"}), 404)
 
     def put(self, id):
-        task = [task for task in RIDES if task['id'] == id]
+        task = [ride for ride in RIDES if ride.get_id() == id]
         if len(task) == 0:
             abort(404)
-        task = task[0]
+        ride = task[0]
         args = self.reqparse.parse_args()
         for k, v in args.items():
-            if v is not None:
-                task[k] = v
-        return {'ride': marshal(task, RIDES_fields)}
+            if k is not 'id':
+                setattr(ride, k, v)
+        return make_response(jsonify(ride.to_json()), 201)
 
     def delete(self, id):
-        task = [task for task in RIDES if task['id'] == id]
+        task = [ride for ride in RIDES if ride.get_id() == id]
         if len(task) == 0:
             abort(404)
         RIDES.remove(task[0])
         return {'result': True}
 
 
-api.add_resource(RideofferList, '/api/v1/rides', endpoint='rides')
-api.add_resource(Rideoffer, '/api/v1/rides/<int:id>', endpoint='ride')
+api.add_resource(RideofferList, '/api/v1/rides')
+api.add_resource(Rideoffer, '/api/v1/rides/<string:id>')
