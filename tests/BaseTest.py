@@ -17,6 +17,9 @@ class BaseTest (unittest.TestCase):
             "Time": "7:00pm",
         }
 
+    def tearDown(self):
+        pass
+
 
 if __name__ == "__main__":
     unittest.main()
