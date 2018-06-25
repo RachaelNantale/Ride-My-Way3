@@ -8,6 +8,7 @@ class ValidateRideData:
 
     def validate_ride_offer(self, driver, pickup_point, destination, time):
         """ Function to validdate data entered while creating a request """
+
         if driver == "":
             return {"message": "Please Fill in driver details"}
         if pickup_point == "":
@@ -18,6 +19,7 @@ class ValidateRideData:
             return {"message": "Please Fill in the Time"}
 
     def validate_no_symbols(self, driver, pickup_point, destination, time):
+
         if driver.isalnum()is False or driver.strip() == "":
             return {"message": "Please Fill in valid input"}
         if pickup_point.isalnum()is False or pickup_point.strip() == "":
