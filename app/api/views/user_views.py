@@ -29,6 +29,9 @@ class Signup(Resource):
         print(new_user)
 
         USERS.append(new_user)
+        for user in USERS:
+            print(user.username)
+        # print(USERS)
 
         return make_response(jsonify({
             'message': 'User successfull created with id: ' + new_user.get_id()
@@ -39,26 +42,26 @@ class Login(Resource):
     """Login class"""
 
     def __init__(self):
-        self.parser = reqparse.RequestParser()
-        self.parser.add_argument('username', type=str, required=True)
-        self.parser.add_argument('password', type=str, required=True)
+        self.reqparse = reqparse.RequestParser()
+        self.reqparse.add_argument('username', type=str, required=True)
+        self.reqparse.add_argument('password', type=str, required=True)
         super(Login, self).__init__()
 
     def post(self):
         """
         Allows users to login to their accounts
         """
-        args = self.parser.parse_args()
-        email = args['username']
-        password = args['password']
-
+        args = self.reqparse.parse_args()
+        user_login = User(args['username'], args['password'])
+        print(user_login.username)
+        # user = user_login.to_json()
         for user in USERS:
-            if username == user['username'] and password == user['password']:
-                access_token = generate_token(user['email'])
+            if user.username:
+                access_token = user.generate_token()
                 return make_response(jsonify({"token": access_token,
                                               "message": "User logged in"
                                               }), 200)
-        return make_response(jsonify({"message": "wrong credentials"}), 401)
+            return make_response(jsonify({"message": "wrong credential"}), 401)
 
 
 api.add_resource(Signup, '/api/v1/auth/signup')

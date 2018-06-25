@@ -11,7 +11,7 @@ class User:
     Class to represent the User model
     """
 
-    def __init__(self, username, email, password, phone):
+    def __init__(self, username, email=None, password=None, phone=None):
         self.id = uuid.uuid4().hex
         self.username = username
         self.email = email
@@ -60,12 +60,9 @@ class User:
             # set up a payload with an expiration time
             payload = {
                 'exp': datetime.utcnow() + timedelta(minutes=40),
-                # international atomic time
                 'iat': datetime.utcnow(),
-                # default  to user id
                 'sub': id
             }
-            # create the byte string token using the payload and the SECRET key
             jwt_string = jwt.encode(
                 payload,
                 current_app.config.get('SECRET_KEY'),

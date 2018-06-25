@@ -80,5 +80,6 @@ class Rideoffer(Resource):
         RIDES.remove(task[0])
         return {'result': True}
 
+
 api.add_resource(RideofferList, '/api/v1/rides')
 api.add_resource(Rideoffer, '/api/v1/rides/<string:id>')
