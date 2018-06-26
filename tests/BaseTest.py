@@ -17,6 +17,18 @@ class BaseTest (unittest.TestCase):
             "Time": "7:00pm",
         }
 
+        res = self.client().post('/api/v1/rides/',
+                                 content_type='application/json',
+                                 data=json.dumps(self.rideoffer_body))
+
+        resp = self.client().get('/api/v1/rides/<int:id>',
+                                 content_type='application/json',
+                                 data=json.dumps(self.rideoffer_body))
+
+        res = self.client().post('/api/v1/rides',
+                                 content_type='application/json',
+                                 data=json.dumps(self.rideoffer_body))
+
     def tearDown(self):
         pass
 

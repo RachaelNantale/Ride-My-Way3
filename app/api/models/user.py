@@ -65,7 +65,7 @@ class User:
             }
             jwt_string = jwt.encode(
                 payload,
-                current_app.config.get('SECRET_KEY'),
+                'secret',
                 algorithm='HS256'
             ).decode('UTF-8')
             return jwt_string
@@ -78,19 +78,18 @@ class User:
         """Decode the access token to get the payload and return
         id """
         try:
-            payload = jwt.decode(token, current_app.config.get('SECRET_KEY'))
-            return {
+            payload = jwt.decode(token, 'secret')
+            return jsonify({
                 "id": payload['sub'],
-                "email": payload['email'],
                 "status": "Success"
-            }
+            })
         except jwt.ExpiredSignatureError:
-            return {
+            return jsonify({
                 "status": "Failure",
                 "message": "Expired token. Please log in to get a new token"
-            }
+            })
         except jwt.InvalidTokenError:
-            return {
+            return jsonify({
                 "status": "Failure",
                 "message": "Invalid token. Please register or login"
-            }
+            })

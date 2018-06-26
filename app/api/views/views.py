@@ -28,6 +28,8 @@ class RideofferList(Resource):
 
     def get(self):
         json_rides = [ride.to_json() for ride in RIDES]
+        print(json_rides)
+        print('-------------')
         return make_response(jsonify(json_rides), 200)
 
     def post(self):
@@ -71,6 +73,10 @@ class Rideoffer(Resource):
         for k, v in args.items():
             if k is not 'id':
                 setattr(ride, k, v)
+                print(k)
+                print(v)
+                # print(ride)
+                print('---------------------')
         return make_response(jsonify(ride.to_json()), 201)
 
     def delete(self, id):
