@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, abort, make_response, Blueprint
 from flask_restful import Api, Resource, reqparse, fields
 from app.api.models.ride import RideOffers
+from app.api.models.user import User
 from app.utility import ValidateRideData
 app_bp = Blueprint('app', __name__)
 api = Api(app_bp)
@@ -36,6 +37,7 @@ class RideofferList(Resource):
         args = self.reqparse.parse_args()
         ride = RideOffers(args['driver'], args['pickup_point'],
                           args['Destination'], args['Time'], False)
+        
         RIDES.append(ride)
 
         return make_response(jsonify({

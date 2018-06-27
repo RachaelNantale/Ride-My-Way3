@@ -1,6 +1,6 @@
 import re
 from app.api.models.ride import RideOffers
-from app.api.models.user import User
+# from app.api.models.user import User
 
 
 class ValidateRideData:
@@ -53,5 +53,3 @@ class ValidateUserData:
 
 
 # ----------------------------------------------------------------------------------------------------------
-
-
