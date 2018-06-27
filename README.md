@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/RachaelNantale/Ride-My-Way2.svg?branch=ch-testing-apiroutes)](https://travis-ci.org/RachaelNantale/Ride-My-Way2)
+[![Build Status](https://travis-ci.org/RachaelNantale/Ride-My-Way2.svg?branch=158657250-start-challenge-3)](https://travis-ci.org/RachaelNantale/Ride-My-Way2)
 [![Coverage Status](https://coveralls.io/repos/github/RachaelNantale/Ride-My-Way2/badge.svg?branch=ch-testing-apiroutes)](https://coveralls.io/github/RachaelNantale/Ride-My-Way2?branch=ch-testing-apiroutes)
 
 # Ride-My-Way2
