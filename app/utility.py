@@ -1,5 +1,5 @@
 import re
-from app.api.models.rideoffer import RideOffers
+from app.api.models.ride import RideOffers
 from app.api.models.user import User
 
 
@@ -50,3 +50,8 @@ class ValidateUserData:
         if len(password) < 5:
             return {"status": False, "message": "Password is too short, < 5"}
         return {"status": True}
+
+
+# ----------------------------------------------------------------------------------------------------------
+
+
