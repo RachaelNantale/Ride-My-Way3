@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, abort, make_response, Blueprint
 from flask_restful import Api, Resource, reqparse, fields
-from app.api.models.rideoffer import RideOffers
+from app.api.models.ride import RideOffers
 from app.utility import ValidateRideData
 app_bp = Blueprint('app', __name__)
 api = Api(app_bp)
@@ -28,8 +28,8 @@ class RideofferList(Resource):
 
     def get(self):
         json_rides = [ride.to_json() for ride in RIDES]
-        print(json_rides)
-        print('-------------')
+        if len(json_rides) == 0:
+            return make_response(jsonify({'message': 'sorry no rides yet'}))
         return make_response(jsonify(json_rides), 200)
 
     def post(self):
@@ -58,11 +58,11 @@ class Rideoffer(Resource):
     def get(self, id):
         for ride in RIDES:
             if ride.get_id() == id:
-                print(ride.get_id())
+
                 return make_response(jsonify(
                     ride.to_json()
                 ), 200)
-        return make_response(jsonify({"message": "Ride not found"}), 404)
+        return make_response(jsonify({"message": "Ride not found."}), 404)
 
     def put(self, id):
         task = [ride for ride in RIDES if ride.get_id() == id]
