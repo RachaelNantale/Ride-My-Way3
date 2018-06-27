@@ -3,7 +3,7 @@ import json
 import jwt
 from app.utility import RideOffers
 from datetime import datetime, timedelta
-from flask import jsonify
+from flask import jsonify, current_app
 
 
 class User:
