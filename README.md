@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/RachaelNantale/Ride-My-Way2.svg?branch=158657250-start-challenge-3)](https://travis-ci.org/RachaelNantale/Ride-My-Way2)
-[![Coverage Status](https://coveralls.io/repos/github/RachaelNantale/Ride-My-Way2/badge.svg?branch=ch-testing-apiroutes)](https://coveralls.io/github/RachaelNantale/Ride-My-Way2?branch=ch-testing-apiroutes)
+[![Coverage Status](https://coveralls.io/repos/github/RachaelNantale/Ride-My-Way2/badge.svg?branch=158657250-start-challenge-3)](https://coveralls.io/github/RachaelNantale/Ride-My-Way2?branch=158657250-start-challenge-3)
 
 # Ride-My-Way2
 Ride-my App is a carpooling application that provides drivers with the ability to create ride offers  and passengers to join available ride offers. 
