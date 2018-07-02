@@ -1,9 +1,13 @@
 import uuid
 import json
 import jwt
-from app.utility import RideOffers
+# from app.utility import RideOffers
 from datetime import datetime, timedelta
-from flask import jsonify, current_app
+from flask import jsonify, current_app, make_response
+import re
+from dbHandler import MyDatabase
+from app.utility import validate_user_input
+db = MyDatabase()
 
 
 class User:
@@ -12,26 +16,12 @@ class User:
     """
 
     def __init__(self, username, email=None, password=None, phone=None):
-        self.id = uuid.uuid4().hex
-        self.username = username
-        self.email = email
-        self.password = password
-        self.phone = phone
-
-    def get_id(self):
-        return self.id
-
-    def get_username(self):
-        return self.username
-
-    def get_email(self):
-        return self.email
-
-    def get_password(self):
-        return self.password
-
-    def get_phone(self):
-        return self.phone
+        self.id = uuid.uuid4().hex.strip()
+        self.username = username.strip()
+        self.email = email.strip()
+        self.password = password.strip()
+        self.phone = phone.strip()
+        self.errors = []
 
     def to_json(self):
         return {
@@ -43,17 +33,29 @@ class User:
 
         }
 
-    def use_token(parser):
+    def save_to_db(self):
+        if validate_user_input(self, self.username, self.email, self.password,
+                               self.phone, self.errors):
+            sql = "INSERT INTO UserTable values('{}','{}','{}','{}','{}')".format(
+                self.id, self.username, self.email, self.password, self.phone)
+            return db.create_record(sql)
+
+        return False
+
+    def use_token(self, parser):
         parser.add_argument('token', location='headers')
+
         args = parser.parse_args()
-        if not args['token']:
+        if not 'token':
             return {"status": False, "message": "Token is missing"}
-        decoded = decode_token(args['token'])
+
+        decoded = self.decode_token(self.token)
+
         if decoded["status"] == "Failure":
             return {"status": False, "message": decoded["message"]}
         return {"status": True, "decoded": decoded}
 
-    def generate_token(id):
+    def generate_token(self, id):
         """Generates the access token to be used as the Authorization header"""
 
         try:
