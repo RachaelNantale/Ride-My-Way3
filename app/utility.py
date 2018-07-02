@@ -1,55 +1,66 @@
 import re
-from app.api.models.ride import RideOffers
+from app.api.models.ride import *
 # from app.api.models.user import User
 
 
-class ValidateRideData:
-    """ class to validate the ride offers """
+def validate_ride_input(driver, pickup_point, destination, time, errors):
+    """ Function to validdate data entered while creating a request """
+    result = True
+    if driver is None or len(driver) > 20:
+        errors.append(
+            'Driver input must be provided and should be between 4 and 20 \
+                characters long ')
+        result = False
 
-    def validate_ride_offer(self, driver, pickup_point, destination, time):
-        """ Function to validdate data entered while creating a request """
+    if driver.alnum():
+        errors.append('Please donot imput symbols')
+        result = False
 
-        if driver == "":
-            return {"message": "Please Fill in driver details"}
-        if pickup_point == "":
-            return {"message": "Please Fill in the Pickup Point"}
-        if destination == "":
-            return {"message": "Please Fill in the Destination"}
-        if time == "":
-            return {"message": "Please Fill in the Time"}
+    if pickup_point is None or len(pickup_point) > 25:
+        errors.append(
+            'Pick up point input must be provided and should be between \
+                4 and 20 characters long')
+        result = False
 
-    def validate_no_symbols(self, driver, pickup_point, destination, time):
+    if pickup_point.alnum():
+        result = False
 
-        if driver.isalnum()is False or driver.strip() == "":
-            return {"message": "Please Fill in valid input"}
-        if pickup_point.isalnum()is False or pickup_point.strip() == "":
-            return {"message": "Please Fill in valid input"}
-        if destination.isalnum()is False or destination.strip() == "":
-            return {"message": "Please Fill in valid input"}
-        if time.isalnum()is False or time.strip() == "":
-            return {"message": "Please Fill in valid input"}
+    if destination is None or len(destination) > 20:
+        errors.append(
+            'Destination input must be provided and should be between 4 \
+                and 20 characters long')
+        result = False
+    if destination.alnum():
+        result = False
+
+    if time is None or len(time) < 3 or len(time) > 10:
+        errors.append(
+            'Time input must be provided and should be between 3 and 10 \
+                characters long and dont use symbols')
+        result = False
+
+    if time.alnum():
+        result = False
+    return result
 
 
-class ValidateUserData:
-    """ Class to validate user authentication"""
+def validate_user_input(self, username, email, password, phone, errors):
+    result = True
 
-    def validate_user_login(self, username, password):
-        if username.strip() == "" or len(name.strip()) < 2:
-            return {"status": False, "message": "invalid, Enter name please"}
+    if re.compile('[!@#$%^&*:;?><.0-9]').match(username):
+        errors.append('Invalid characters not allowed')
+        result = False
 
-        if not bool(re.fullmatch('^[A-Za-z ]*$', name)):
-            return {"status": False,
-                    "message": "Invalid characters not allowed"}
+    if not re.match(r"([\w\.-]+)@([\w\.-]+)(\.[\w\.]+$)", email):
+        errors.append('Enter valid email')
+        result = False
+    if len(password) < 5:
+        errors.append('Password is too short')
+        result = False
 
-        if not re.match(r"([\w\.-]+)@([\w\.-]+)(\.[\w\.]+$)", email):
-            return {"status": False, "message": "Enter valid email "}
-
-        if password.strip() == "":
-            return {"status": False, "message": "Enter password"}
-
-        if len(password) < 5:
-            return {"status": False, "message": "Password is too short, < 5"}
-        return {"status": True}
-
+    if len(phone) < 10:
+        errors.append('Phone number is too short')
+        result = False
+    return result
 
 # ----------------------------------------------------------------------------------------------------------
