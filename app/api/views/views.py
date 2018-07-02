@@ -2,7 +2,7 @@ from flask import Flask, jsonify, abort, make_response, Blueprint
 from flask_restful import Api, Resource, reqparse, fields
 from app.api.models.ride import RideOffers
 from app.api.models.user import User
-from app.utility import ValidateRideData
+# from app.utility import ValidateRideData
 app_bp = Blueprint('app', __name__)
 api = Api(app_bp)
 
@@ -37,13 +37,21 @@ class RideofferList(Resource):
         args = self.reqparse.parse_args()
         ride = RideOffers(args['driver'], args['pickup_point'],
                           args['Destination'], args['Time'], False)
-        
-        RIDES.append(ride)
 
-        return make_response(jsonify({
-            'message': 'Ride Offer Created with id: ' + ride.get_id(),
-            'status': 'success'
-        }), 201)
+        if ride.save_to_db():
+            message = 'Ride Created Successfuly'
+            status_code = 201
+            status_msg = 'Success'
+
+        else:
+            message = 'Ride Not Created.'
+            if len(ride.errors) > 0:
+                message = ' '.join(ride.errors)
+            status_code = 400
+            status_msg = 'Fail'
+
+        return make_response(jsonify({'Message': message,
+                                      'status': status_msg}), status_code)
 
 
 class Rideoffer(Resource):

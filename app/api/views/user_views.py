@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, abort, make_response, Blueprint, current_app
 from flask_restful import Api, Resource, reqparse, fields
 from app.api.models.user import User
-from app.utility import ValidateRideData
+# from app.utility import ValidateRideData
 import jwt
 from datetime import datetime, timedelta
 import re
@@ -30,41 +30,22 @@ class Signup(Resource):
         args = self.reqparse.parse_args()
         new_user = User(args['username'], args['email'],
                         args['password'], args['phone'])
-
-        if args['username'].strip() == "" or len(args['username'].strip()) < 2:
-            return make_response(jsonify({"message":
-                                          "invalid, Enter name please"}), 400)
-
-        if re.compile('[!@#$%^&*:;?><.0-9]').match(args['username']):
-            return make_response(jsonify({"message":
-                                          "Invalid characters not allowed"}
-                                         ), 400)
-
-        if not re.match(r"([\w\.-]+)@([\w\.-]+)(\.[\w\.]+$)", args['email']):
-            return make_response(jsonify({"message":
-                                          "Enter valid email"}), 400)
-
-        if args['password'].strip() == "":
-            return make_response(jsonify({"message": "Enter password"}), 400)
-
-        if len(args['password']) < 5:
-            return make_response(jsonify({"message":
-                                          "Password is too short, < 5"}), 400)
-
-        if len(args['phone']) < 10:
-            return make_response(jsonify({"message":
-                                          "Phone number is too short"}), 400)
-
         print(new_user)
 
-        USERS.append(new_user)
-        for user in USERS:
-            print(user.username)
-        # print(USERS)
+        if new_user.save_to_db():
+            print(new_user)
+            message = 'User Created Successfuly'
+            status_code = 201
+            status_msg = 'Success'
 
-        return make_response(jsonify({
-            'message': 'User successfull created with id: ' + new_user.get_id()
-        }), 201)
+        else:
+            message = 'User Not Created.'
+            if len(new_user.errors) > 0:
+                message = new_user.errors
+            status_code = 400
+            status_msg = 'Fail'
+
+        return make_response(jsonify({'Message': message, 'status': status_msg}), status_code)
 
 
 class Login(Resource):
