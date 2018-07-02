@@ -1,5 +1,4 @@
 import psycopg2
-from pprint import pprint
 
 
 class MyDatabase():
@@ -11,29 +10,26 @@ class MyDatabase():
             self.conn.autocommit = True
             self.cur = self.conn.cursor()
             self.create_tables()
-        except Exception as error:
-            pprint(error)
+        except psycopg2.Error as error:
+            print(error)
 
     def create_tables(self):
         users_table = "CREATE TABLE IF NOT EXISTS UserTable (id TEXT PRIMARY KEY NOT NULL, username varchar(50) NOT NULL, email varchar(50) NOT NULL, password varchar(50) NOT NULL, phone varchar(10) NOT NULL)"
-        rides_table = "CREATE TABLE IF NOT EXISTS RideTable (id TEXT PRIMARY KEY NOT NULL,  driver varchar(25) NOT NULL, pickup_point varchar(50) NOT NULL, destination varchar(50) NOT NULL, time varchar(50) NOT NULL, done bool)"
+        rides_table = "CREATE TABLE IF NOT EXISTS RideTable (id TEXT PRIMARY KEY NOT NULL,  driver varchar(25) NOT NULL UNIQUE, pickup_point varchar(50) NOT NULL, destination varchar(50) NOT NULL, time varchar(50) NOT NULL, done bool)"
         request_table = "CREATE TABLE IF NOT EXISTS RequestTable (id TEXT PRIMARY KEY NOT NULL,  passenger varchar(25) NOT NULL, pickup_point varchar(50) NOT NULL, destination varchar(50) NOT NULL, time varchar(50) NOT NULL)"
         self.cur.execute(users_table)
         self.cur.execute(rides_table)
         self.cur.execute(request_table)
 
-    def create_record(self, table, *args):
-        """ This is fro creating variables"""
-        create_query = "INSERT INTO {} {} VALUES {}".format(
-            table, args[0], args[1])
-        if self.cur.execute(create_query) is None:
+    def create_record(self, sql):
+        if self.cur.execute(sql) is None:
             return True
         return False
 
     def fetch_all(self, table, condition="ORDER BY id DESC"):
         """ This is for getting all variables """
         fetchall_query = "SELECT * FROM {} {}".format(table, condition)
-        self.cur.execute(fetch_all_query)
+        self.cur.execute(fetchall_query)
         total_results = self.cur.fetchall()
         if total_results:
             return total_results
@@ -42,7 +38,7 @@ class MyDatabase():
     def fetch_one(self, table, condition="ORDER BY id DESC"):
         """ This is for fetching one """
         fetchone_query = "SELECT * FROM {} {}".format(table, condition)
-        self.cur.execute(select_query)
+        self.cur.execute(fetchone_query)
         total_results = self.cur.fetchone()
         if total_results:
             return total_results
@@ -64,8 +60,8 @@ class MyDatabase():
 if __name__ == "__main__":
     ride = MyDatabase()
     ride.create_tables()
-    ride.fetch_all('RequestTable')
-    ride.fetch_one('RideTable')
+    # ride.fetch_all('RequestTable')
+    # ride.fetch_one('RideTable')
 
     # ride.create_record("UserTable", "(id, username,email,password, phone)",
     #                    ('1yyqqqy', 'rachael', 'rachaelexample.com', '', '1111111111'))
