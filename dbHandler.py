@@ -26,31 +26,54 @@ class MyDatabase():
             return True
         return False
 
-    def fetch_all(self, table, condition="ORDER BY id DESC"):
-        """ This is for getting all variables """
-        fetchall_query = "SELECT * FROM {} {}".format(table, condition)
-        self.cur.execute(fetchall_query)
-        total_results = self.cur.fetchall()
-        if total_results:
-            return total_results
-        return None
+    def user_login(self, sql):
+        """
+        User login
+        """
+        self.cur.execute(sql)
+        return self.cur.fetchone()
 
-    def fetch_one(self, table, condition="ORDER BY id DESC"):
-        """ This is for fetching one """
-        fetchone_query = "SELECT * FROM {} {}".format(table, condition)
-        self.cur.execute(fetchone_query)
-        total_results = self.cur.fetchone()
-        if total_results:
-            return total_results
-        return None
+    def fetch_all_rides(self, id):
+        """
+        Fetch all rides
+        """
+        self.cur.execute(
+            "SELECT * FROM RideTable;")
+        rides = self.cur.fetchall()
+        my_rides = []
+        for ride in rides:
+            my_dict = ({'id': ride[0], 'driver': ride[1],
+                        'pickup_point': ride[2], 'destination': [
+                3], 'time': [4], 'done': [5]})
+            my_rides.append(my_dict)
+        return rides
 
-    def delete_request(self, id):
-        self.cur.execute("DELETE FROM RequestTable WHERE id = {} ".format(id))
-        return True
+    def fetch_one_ride(self, id):
 
-    def modify_request(self, id):
-        self.cur.execute("UPDATE requests SET RequestTable =%s WHERE id = %s ")
-        return True
+        self.cur.execute(
+            "SELECT * FROM RideTable WHERE id = '{}' ".format(id))
+        ride = self.cur.fetchone()
+        my_dict = {}
+        my_dict['id'] = ride[0]
+        my_dict['driver'] = ride[1]
+        my_dict['pickup_point'] = ride[2]
+        my_dict['destination'] = ride[3]
+        my_dict['time'] = ride[4]
+        my_dict['done'] = ride[5]
+        print(my_dict)
+        return my_dict
+
+    def delete_record(self, id):
+        delete_cmd = "DELETE FROM RideTable WHERE id='{}'".format(id)
+        self.cur.execute(delete_cmd)
+
+    def modify_ride(self, sql):
+        """
+        Modify a request
+        """
+        if self.cur.execute(sql) is None:
+            return True
+        return False
 
     def close(self):
         self.cur.close()

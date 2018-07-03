@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from flask import jsonify, current_app, make_response
 import re
 from dbHandler import MyDatabase
-from app.utility import validate_user_input
+# from app.utility import validate_user_input
 db = MyDatabase()
 
 
@@ -40,6 +40,14 @@ class User:
                 self.id, self.username, self.email, self.password, self.phone)
             return db.create_record(sql)
 
+        return False
+
+    def select_from_db(self, username):
+        if validate_user_input(self, self.username,
+                               self.password, self.errors):
+            sql = "SELECT * FROM UserTable WHERE username='{}'".format(
+                self.username)
+            return db.user_login(sql)
         return False
 
     def use_token(self, parser):
