@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, abort, make_response, Blueprint, current_app
 from flask_restful import Api, Resource, reqparse, fields
 from app.api.models.user import User
-# from app.utility import ValidateRideData
+from dbHandler import MyDatabase
 import jwt
 from datetime import datetime, timedelta
 import re
@@ -9,6 +9,7 @@ import re
 app_bps = Blueprint('app_user', __name__)
 api = Api(app_bps)
 
+db = MyDatabase()
 USERS = []
 
 
@@ -64,7 +65,6 @@ class Login(Resource):
         Allows users to login to their accounts
         """
         args = self.reqparse.parse_args()
-
         for user in USERS:
             if user.username == args['username'] and user.password == args['password']:
                 # access_token = user.generate_token()
