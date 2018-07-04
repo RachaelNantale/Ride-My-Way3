@@ -34,10 +34,14 @@ class RideofferList(Resource):
         if result is not None:
             return jsonify({'result': result})
         else:
-            return jsonify({'message': 'You have no requests'}), 400
+            return jsonify({'message': 'You have no requests'})
 
     def post(self):
-        args = self.reqparse.parse_args()
+        parser = reqparse.RequestParser()
+        res = User.use_token(parser)
+        if not res['status']:
+            return make_response(jsonify({"message": res['message']}), 400)
+
         ride = RideOffers(args['driver'], args['pickup_point'],
                           args['Destination'], args['Time'], False)
 
@@ -76,7 +80,7 @@ class Rideoffer(Resource):
 
             return jsonify({'result': result})
         else:
-            return jsonify({'message': 'You have no requests'}), 400
+            return jsonify({'message': 'You have no requests'})
 
     def put(self, id):
         args = self.reqparse.parse_args()
@@ -84,7 +88,8 @@ class Rideoffer(Resource):
                           args['destination'], args['time'], False)
 
         if ride.modify_ride_models(args['driver'], args['pickup_point'],
-                                   args['destination'], args['time'], False, id):
+                                   args['destination'], args['time'],
+                                   False, id):
             print(ride)
             message = 'Modified requests'
             status_code = 201

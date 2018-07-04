@@ -15,7 +15,7 @@ class User:
     Class to represent the User model
     """
 
-    def __init__(self, username, email=None, password=None, phone=None):
+    def __init__(self, username, email="", password="", phone=""):
         self.id = uuid.uuid4().hex.strip()
         self.username = username.strip()
         self.email = email.strip()
@@ -45,23 +45,11 @@ class User:
     def select_from_db(self, username):
         if validate_user_input(self, self.username,
                                self.password, self.errors):
-            sql = "SELECT * FROM UserTable WHERE username='{}'".format(
-                self.username)
+            sql = "SELECT * FROM UserTable WHERE username = '{}'".format(
+                username)
+            print(sql)
             return db.user_login(sql)
         return False
-
-    def use_token(self, parser):
-        parser.add_argument('token', location='headers')
-
-        args = parser.parse_args()
-        if not 'token':
-            return {"status": False, "message": "Token is missing"}
-
-        decoded = self.decode_token(self.token)
-
-        if decoded["status"] == "Failure":
-            return {"status": False, "message": decoded["message"]}
-        return {"status": True, "decoded": decoded}
 
     def generate_token(self, id):
         """Generates the access token to be used as the Authorization header"""
@@ -84,7 +72,7 @@ class User:
             # return an error in string format if an exception occurs
             return str(e)
 
-    def decode_token(token):
+    def decode_token(self, token):
         """Decode the access token to get the payload and return
         id """
         try:
@@ -103,3 +91,39 @@ class User:
                 "status": "Failure",
                 "message": "Invalid token. Please register or login"
             })
+
+
+def use_token(self, parser):
+    """function to check for token"""
+    parser.add_argument('token', location='headers')
+    args = parser.parse_args()
+    if not args['token']:
+        return {"status": False, "message": "Token is missing"}
+    decoded = self.decode_token(args['token'])
+    if decoded["status"] == "Failure":
+        return {"status": False, "message": decoded["message"]}
+    return {"status": True, "decoded": decoded}
+
+
+def validate_user_input(self, username, email="", password="",
+                        phone="", errors=[]):
+
+    result = True
+
+    if re.compile('[!@#$%^&*:;?><.0-9]').match(username):
+        errors.append('Invalid characters not allowed')
+        result = False
+
+    if not re.match(r"([\w\.-]+)@([\w\.-]+)(\.[\w\.]+$)", email):
+        errors.append('Enter valid email')
+        result = False
+    if len(password) < 5:
+        errors.append('Password is too short')
+        result = False
+
+    if len(phone) < 10:
+        errors.append('Phone number is too short')
+        result = False
+
+    # todo make validation work
+    return True
