@@ -2,7 +2,8 @@ from flask import Flask, jsonify, abort, make_response, Blueprint, current_app
 from flask_restful import Api, Resource, reqparse, fields
 from app.api.models.user import User
 from dbHandler import MyDatabase
-import jwt
+from flask_jwt_extended import (
+    JWTManager, jwt_required, create_access_token, get_jwt_identity)
 from datetime import datetime, timedelta
 import re
 import uuid
@@ -31,21 +32,23 @@ class Signup(Resource):
         args = self.reqparse.parse_args()
         new_user = User(args['username'], args['email'],
                         args['password'], args['phone'])
+        try:
 
-        if new_user.save_to_db():
-            print(new_user)
+            created_user = new_user.save_to_db()
             message = 'User Created Successfuly'
             status_code = 201
-            status_msg = 'Success'
+            status_msg = 'Success with id:'
+            return make_response(jsonify({'user': created_user, 'Message': message, 'status': status_msg}), status_code)
 
-        else:
-            message = 'User Not Created.'
+        except Exception:
+
+            message = 'User Already Exists.'
             if len(new_user.errors) > 0:
                 message = new_user.errors
             status_code = 400
             status_msg = 'Fail'
 
-        return make_response(jsonify({'Message': message, 'status': status_msg}), status_code)
+            return make_response(jsonify({'Message': message, 'status': status_msg}), status_code)
 
 
 class Login(Resource):
@@ -71,8 +74,8 @@ class Login(Resource):
         print(result)
 
         if result is not None:
-            user_object = User(result[0], result[1], result[2])
-            access_token = user_object.generate_token(_id)
+            # user_object = User(result[0], result[1], result[2])
+            access_token = create_access_token(identity=args['username'])
             return make_response(jsonify({'message': 'user successful logged in',
                                           'token': access_token}))
 
@@ -81,4 +84,3 @@ class Login(Resource):
 
 api.add_resource(Signup, '/api/v1/auth/signup')
 api.add_resource(Login, '/api/v1/auth/login')
-# access_token = user.generate_token()
