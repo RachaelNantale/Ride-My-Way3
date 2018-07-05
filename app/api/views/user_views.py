@@ -41,7 +41,7 @@ class Signup(Resource):
 
         except Exception:
 
-            message = 'User Already Exists.'
+            message = 'An error occured please check again.'
             if len(new_user.errors) > 0:
                 message = new_user.errors
             status_code = 400
@@ -76,11 +76,15 @@ class Login(Resource):
             expires = datetime.timedelta(days=1)
             access_token = create_access_token(identity=args['username'],
                                                expires_delta=expires)
+            user_token = {}
+            user_token["token"] = access_token, 200
             return make_response(jsonify({  # 'message': 'user successful logged in',
-                'token': access_token}))
+                'token': user_token}))
 
         return make_response(jsonify({'message': 'User not found. Please sign up'}), 400)
 
 
 api.add_resource(Signup, '/api/v1/auth/signup')
 api.add_resource(Login, '/api/v1/auth/login')
+
+

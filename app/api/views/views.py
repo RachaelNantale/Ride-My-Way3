@@ -41,10 +41,6 @@ class RideofferList(Resource):
 
     @jwt_required
     def post(self):
-        # res = use_token(parser)
-        # if not res['status']:
-        #     return make_response(jsonify({"message": res['message']}), 400)
-
         args = self.reqparse.parse_args()
         ride = RideOffers(args['driver'], args['pickup_point'],
                           args['Destination'], args['Time'], False)
@@ -55,7 +51,7 @@ class RideofferList(Resource):
             status_msg = 'Success'
 
             return make_response(jsonify({'Message': message,
-                                      'status': status_msg}), status_code)
+                                          'status': status_msg}), status_code)
 
         except Exception:
             message = 'Ride Not Created.'
@@ -65,7 +61,7 @@ class RideofferList(Resource):
             status_msg = 'Fail'
 
             return make_response(jsonify({'Message': message,
-                                      'status': status_msg}), status_code)
+                                          'status': status_msg}), status_code)
 
 
 class Rideoffer(Resource):
@@ -112,6 +108,7 @@ class Rideoffer(Resource):
 
         return make_response(jsonify({'Message': message,
                                       'status': status_msg}), status_code)
+
     @jwt_required
     def delete(self, id):
         _id = str(uuid.uuid1())
