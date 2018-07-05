@@ -1,12 +1,10 @@
 import uuid
 import json
 import jwt
-# from app.utility import RideOffers
 from datetime import datetime, timedelta
 from flask import jsonify, current_app, make_response
 import re
 from dbHandler import MyDatabase
-# from app.utility import validate_user_input
 db = MyDatabase()
 
 
@@ -16,11 +14,11 @@ class User:
     """
 
     def __init__(self, username, email="", password="", phone=""):
-        self.id = uuid.uuid4().hex.strip()
-        self.username = username.strip()
-        self.email = email.strip()
-        self.password = password.strip()
-        self.phone = phone.strip()
+        self.id = uuid.uuid4().hex
+        self.username = username.strip(" ")
+        self.email = email.strip(" ")
+        self.password = password.strip(" ")
+        self.phone = phone.strip(" ")
         self.errors = []
 
     def to_json(self):
@@ -36,7 +34,7 @@ class User:
     def save_to_db(self):
         if validate_user_input(self, self.username, self.email, self.password,
                                self.phone, self.errors):
-            sql = "INSERT INTO UserTable values('{}','{}','{}','{}','{}')".format(
+            sql = "INSERT INTO UserTable values('{}','{}','{}','{}','{}')RETURNING id".format(
                 self.id, self.username, self.email, self.password, self.phone)
             return db.create_record(sql)
 
@@ -105,13 +103,13 @@ def use_token(self, parser):
     return {"status": True, "decoded": decoded}
 
 
-def validate_user_input(self, username, email="", password="",
+def validate_user_input(self, username="", email="", password="",
                         phone="", errors=[]):
 
     result = True
 
     if re.compile('[!@#$%^&*:;?><.0-9]').match(username):
-        errors.append('Invalid characters not allowed')
+        errors.append('Please  donot use symbols')
         result = False
 
     if not re.match(r"([\w\.-]+)@([\w\.-]+)(\.[\w\.]+$)", email):
