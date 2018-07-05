@@ -37,10 +37,10 @@ class RideOffers:
     def save_to_db(self):
         if validate_ride_input(self, self.driver, self.pickup_point,
                                self.destination, self.time):
-            sql = "INSERT INTO RideTable values('{}','{}','{}','{}','{}','{}')".format(
+            sql = "INSERT INTO RideTable values('{}','{}','{}','{}','{}','{}')RETURNING id".format(
                 self.id, self.driver, self.pickup_point, self.destination,
                 self.time, self.done)
-            result = db.create_record(sql)
+            result = db.create_login(sql)
             return result
         return False
 

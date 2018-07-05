@@ -2,9 +2,8 @@ from flask import Flask, jsonify, abort, make_response, Blueprint, current_app
 from flask_restful import Api, Resource, reqparse, fields
 from app.api.models.user import User
 from dbHandler import MyDatabase
-from flask_jwt_extended import (
-    JWTManager, jwt_required, create_access_token, get_jwt_identity)
-from datetime import datetime, timedelta
+from flask_jwt_extended import create_access_token
+import datetime
 import re
 import uuid
 
@@ -74,10 +73,11 @@ class Login(Resource):
         print(result)
 
         if result is not None:
-            # user_object = User(result[0], result[1], result[2])
-            access_token = create_access_token(identity=args['username'])
-            return make_response(jsonify({'message': 'user successful logged in',
-                                          'token': access_token}))
+            expires = datetime.timedelta(days=1)
+            access_token = create_access_token(identity=args['username'],
+                                               expires_delta=expires)
+            return make_response(jsonify({  # 'message': 'user successful logged in',
+                'token': access_token}))
 
         return make_response(jsonify({'message': 'User not found. Please sign up'}), 400)
 

@@ -95,6 +95,13 @@ class Requestoffer(Resource):
             message = 'Approved request'
             status_code = 200
             status_msg = 'Success'
+            
+            request = RideRequests(ride_id=ride_id)
+            
+            request.modify_request_models(status, request_id)
+            
+
+
 
             return make_response(jsonify({'Message': message,
                                           'status': status_msg}), status_code)
