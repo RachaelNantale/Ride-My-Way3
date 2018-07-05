@@ -54,6 +54,9 @@ class RideofferList(Resource):
             status_code = 201
             status_msg = 'Success'
 
+            return make_response(jsonify({'Message': message,
+                                      'status': status_msg}), status_code)
+
         except Exception:
             message = 'Ride Not Created.'
             if len(ride.errors) > 0:
@@ -61,7 +64,7 @@ class RideofferList(Resource):
             status_code = 400
             status_msg = 'Fail'
 
-        return make_response(jsonify({'Message': message,
+            return make_response(jsonify({'Message': message,
                                       'status': status_msg}), status_code)
 
 

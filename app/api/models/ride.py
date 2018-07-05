@@ -58,7 +58,7 @@ class RideOffers:
 def validate_ride_input(self, driver, pickup_point, destination, time):
     """ Function to validdate data entered while creating a request """
     result = True
-    if len(self.driver) < 1 or len(self.driver) > 30 or self.driver.isalnum() is False:
+    if len(self.driver) < 1 or len(self.driver) > 40 or self.driver.isalnum() is False:
         self.errors.append(
             'Driver input must be provided and should be between 4 and 20 characters long and dont use symbols ')
         result = False
