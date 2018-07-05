@@ -15,13 +15,12 @@ class TestClass(BaseTest):
         self.userlist = {'username': 'Rachael', 'email': 'rachael@sample.com',
                          'password': '123abc', 'phone': '0708999000'}
         self.loginlist = {'username': 'Rachael', 'password': '123abc'}
-        
 
     def test_sigin_user(self):
         """Test API if a user already exists"""
         res = self.client().post('/api/v1/auth/signup', data=self.userlist)
-        self.assertEqual(res.status_code, 400)
-        self.assertIn(' "Message": "User Not Created."', str(res.data))
+        self.assertEqual(res.status_code, 201)
+        self.assertIn(' "Message": "User Created Successfuly"', str(res.data))
 
     def test_right_user_logged_in(self):
         self.client().post('/api/v1/auth/signup',
@@ -49,7 +48,7 @@ class TestClass(BaseTest):
         res = self.client().post('/api/v1/auth/signup',
                                  data={'username': ' ',
                                        'email': 'rachael@sample.com',
-                                       'password': '123abc', 
+                                       'password': '123abc',
                                        'phone': '0708999000'})
         print(res)
         self.assertEqual(res.status_code, 400)
@@ -82,6 +81,6 @@ class TestClass(BaseTest):
         self.assertEqual(result.status_code, 200)
         self.assertIn('Rachael', str(result.data))
 
-    
+
 if __name__ == "__main__":
     unittest.main()

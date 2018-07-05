@@ -16,13 +16,13 @@ class BaseTest (unittest.TestCase):
             "driver": "Amos Quito",
             "pickup_point": "kanjokya",
             "Destination": "Bukoto street",
-            "Time": "7:00pm",
+            "Time": "7:00pm"
         }
         self.request_body = {
             "passenger": "Amos Quito",
             "pickup_point": "kanjokya",
             "Destination": "Bukoto street",
-            "Time": "7:00pm",
+            "Time": "7:00pm"
 
         }
         self.user_body = {
@@ -36,29 +36,13 @@ class BaseTest (unittest.TestCase):
             'password': '123abc'
         }
 
-    def create_user(self):
-        response = self.client().post('/api/v1/auth/signup',
-                                      data=json.dumps(self.user_body),
-                                      content_type='application/json')
-        return response
-
-    def create_ride(self):
-        response = self.client().post('/api/v1/rides',
-                                      data=json.dumps(self.rideoffer_body),
-                                      content_type='application/json')
-        return response
-
-    def create_request(self):
-        response = self.client().post('/api/v1/1/requests',
-                                      data=json.dumps(self.request_body),
-                                      content_type='application/json')
-        return response
-
-    def login_user(self):
-        response = self.client().post('/api/v1/auth/login',
-                                      data=json.dumps(self.loginlist),
-                                      content_type='application/json')
-        return response
+    def test_login(self):
+        self.client().post('/api/v1/auth/signup',
+                           content_type='application/json',
+                           data=json.dumps(self.user_body))
+        self.client().post('/api/v1/auth/login',
+                           content_type='application/json',
+                           data=json.dumps(self.loginlist))
 
     def tearDown(self):
         db = MyDatabase()
