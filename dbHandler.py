@@ -1,5 +1,4 @@
 import psycopg2
-from pprint import pprint
 
 
 class MyDatabase():
@@ -11,50 +10,144 @@ class MyDatabase():
             self.conn.autocommit = True
             self.cur = self.conn.cursor()
             self.create_tables()
-        except Exception as error:
-            pprint(error)
+        except psycopg2.Error as error:
+            print(error)
 
     def create_tables(self):
-        users_table = "CREATE TABLE IF NOT EXISTS UserTable (id TEXT PRIMARY KEY NOT NULL, username varchar(50) NOT NULL, email varchar(50) NOT NULL, password varchar(50) NOT NULL, phone varchar(10) NOT NULL)"
-        rides_table = "CREATE TABLE IF NOT EXISTS RideTable (id TEXT PRIMARY KEY NOT NULL,  driver varchar(25) NOT NULL, pickup_point varchar(50) NOT NULL, destination varchar(50) NOT NULL, time varchar(50) NOT NULL, done bool)"
-        request_table = "CREATE TABLE IF NOT EXISTS RequestTable (id TEXT PRIMARY KEY NOT NULL,  passenger varchar(25) NOT NULL, pickup_point varchar(50) NOT NULL, destination varchar(50) NOT NULL, time varchar(50) NOT NULL)"
+        users_table = """CREATE TABLE IF NOT EXISTS UserTable (id TEXT PRIMARY KEY NOT NULL,
+         username varchar(50) NOT NULL UNIQUE, email varchar(50) NOT NULL UNIQUE,
+          password varchar(50) NOT NULL, phone varchar(10) NOT NULL UNIQUE)"""
+
+        rides_table = """CREATE TABLE IF NOT EXISTS RideTable 
+        (id TEXT PRIMARY KEY NOT NULL,
+        driver TEXT NOT NULL,
+        FOREIGN KEY (driver) REFERENCES UserTable(id) ON DELETE CASCADE ON UPDATE CASCADE ,
+         pickup_point varchar(50) NOT NULL, destination varchar(50) NOT NULL, 
+         time varchar(50) NOT NULL, done bool)"""
+
+        request_table = """CREATE TABLE IF NOT EXISTS RequestTable 
+        (request_id TEXT PRIMARY KEY NOT NULL, 
+        ride_id TEXT NOT NULL,
+        FOREIGN KEY (ride_id) REFERENCES RideTable (id) ON DELETE CASCADE ON UPDATE CASCADE,  
+        passenger TEXT NOT NULL, 
+        FOREIGN KEY (passenger) REFERENCES UserTable(id) ON DELETE CASCADE ON UPDATE CASCADE ,
+        pickup_point varchar(50) NOT NULL, 
+        destination varchar(50) NOT NULL, time varchar(50) NOT NULL, status bool)"""
+
         self.cur.execute(users_table)
         self.cur.execute(rides_table)
         self.cur.execute(request_table)
 
-    def create_record(self, table, *args):
-        """ This is fro creating variables"""
-        create_query = "INSERT INTO {} {} VALUES {}".format(
-            table, args[0], args[1])
-        if self.cur.execute(create_query) is None:
+    def create_record(self, sql):
+        if self.cur.execute(sql) is None:
             return True
         return False
 
-    def fetch_all(self, table, condition="ORDER BY id DESC"):
-        """ This is for getting all variables """
-        fetchall_query = "SELECT * FROM {} {}".format(table, condition)
-        self.cur.execute(fetch_all_query)
-        total_results = self.cur.fetchall()
-        if total_results:
-            return total_results
+    def user_login(self, sql):
+        """
+        User login
+        """
+        self.cur.execute(sql)
+        return self.cur.fetchone()
+
+    def fetch_all_rides(self, id):
+        """
+        Fetch all rides
+        """
+        self.cur.execute(
+            "SELECT * FROM RideTable;")
+        rides = self.cur.fetchall()
+        my_rides = []
+        for ride in rides:
+            my_dict = ({'id': ride[0], 'driver': ride[1],
+                        'pickup_point': ride[2], 'destination': [
+                3], 'time': [4], 'done': [5]})
+            my_rides.append(my_dict)
+        return rides
+
+    def fetch_all_requests(self, request_id):
+        """
+        Fetch all requests
+        """
+        self.cur.execute(
+            "SELECT * FROM RequestTable;")
+        requests = self.cur.fetchall()
+        my_requests = []
+        for request in requests:
+            my_dict = {}
+            my_dict['ride_id'] = request[0]
+            my_dict['request_id'] = request[1]
+            my_dict['passenger'] = request[2]
+            my_dict['pickup_point'] = request[3]
+            my_dict['destination'] = request[4]
+            my_dict['time'] = request[5]
+            my_dict['status'] = request[6]
+            my_requests.append(my_dict)
+        return my_requests
+
+    def fetch_one_ride(self, id):
+
+        self.cur.execute(
+            "SELECT * FROM RideTable WHERE id = '{}' ".format(id))
+        ride = self.cur.fetchone()
+        my_dict = {}
+        my_dict['id'] = ride[0]
+        my_dict['driver'] = ride[1]
+        my_dict['pickup_point'] = ride[2]
+        my_dict['destination'] = ride[3]
+        my_dict['time'] = ride[4]
+        my_dict['status'] = ride[5]
+        print(my_dict)
+        return my_dict
+
+    def fetch_one_request_by_rideid(self, ride_id):
+        self.cur.execute(
+            "SELECT * FROM RequestTable WHERE ride_id = '{}' ".format(ride_id))
+        requests = self.cur.fetchall()
+        my_requests = []
+        for request in requests:
+            my_dict = {}
+            my_dict['ride_id'] = request[0]
+            my_dict['request_id'] = request[1]
+            my_dict['passenger'] = request[2]
+            my_dict['pickup_point'] = request[3]
+            my_dict['destination'] = request[4]
+            my_dict['time'] = request[5]
+            my_dict['status'] = request[6]
+            my_requests.append(my_dict)
+        return my_requests
+
+    def fetch_one_request(self, request_id):
+        self.cur.execute(
+            "SELECT * FROM RequestTable WHERE request_id = '{}' ".format(request_id))
+        request = self.cur.fetchone()
+        if request:
+            my_dict = {}
+            my_dict['ride_id'] = request[0]
+            my_dict['request_id'] = request[1]
+            my_dict['passenger'] = request[2]
+            my_dict['pickup_point'] = request[3]
+            my_dict['destination'] = request[4]
+            my_dict['time'] = request[5]
+            my_dict['status'] = request[6]
+            return my_dict
         return None
 
-    def fetch_one(self, table, condition="ORDER BY id DESC"):
-        """ This is for fetching one """
-        fetchone_query = "SELECT * FROM {} {}".format(table, condition)
-        self.cur.execute(select_query)
-        total_results = self.cur.fetchone()
-        if total_results:
-            return total_results
-        return None
+    def fetch_user(self, sql):
+        self.cur.execute(sql)
+        return self.cur.fetchone()
 
-    def delete_request(self, id):
-        self.cur.execute("DELETE FROM RequestTable WHERE id = {} ".format(id))
-        return True
+    def delete_record(self, id):
+        delete_cmd = "DELETE FROM RideTable WHERE id='{}'".format(id)
+        self.cur.execute(delete_cmd)
 
-    def modify_request(self, id):
-        self.cur.execute("UPDATE requests SET RequestTable =%s WHERE id = %s ")
-        return True
+    def modify_record(self, sql):
+        """
+        Modify a record
+        """
+        if self.cur.execute(sql) is None:
+            return True
+        return False
 
     def close(self):
         self.cur.close()
@@ -64,10 +157,10 @@ class MyDatabase():
 if __name__ == "__main__":
     ride = MyDatabase()
     ride.create_tables()
-    ride.fetch_all('RequestTable')
-    ride.fetch_one('RideTable')
+    # ride.fetch_all('RequestTable')
+    # ride.fetch_one('RideTable')
 
     # ride.create_record("UserTable", "(id, username,email,password, phone)",
     #                    ('1yyqqqy', 'rachael', 'rachaelexample.com', '', '1111111111'))
-    # ride.create_record("RideTable", "(id, driver,pickup_point,destination, time, done)",
-    #                    ('1yeq', 'rachael', 'Kamwokya', 'busia', '7pm', False))
+    # ride.create_record("RequestTable", "(request_id, ride_id, passenger,pickup_point,destination, time, status)",
+    #                    ('1yeq', '435f483e-7f1d-11e8-a4e7-70188b5e6545', 'rachael', 'Kamwokya', 'busia', '7pm', False))

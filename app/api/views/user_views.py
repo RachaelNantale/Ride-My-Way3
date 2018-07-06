@@ -1,15 +1,16 @@
 from flask import Flask, jsonify, abort, make_response, Blueprint, current_app
 from flask_restful import Api, Resource, reqparse, fields
 from app.api.models.user import User
-from app.utility import ValidateRideData
+from dbHandler import MyDatabase
 import jwt
 from datetime import datetime, timedelta
 import re
+import uuid
 
 app_bps = Blueprint('app_user', __name__)
 api = Api(app_bps)
 
-USERS = []
+db = MyDatabase()
 
 
 class Signup(Resource):
@@ -31,40 +32,20 @@ class Signup(Resource):
         new_user = User(args['username'], args['email'],
                         args['password'], args['phone'])
 
-        if args['username'].strip() == "" or len(args['username'].strip()) < 2:
-            return make_response(jsonify({"message":
-                                          "invalid, Enter name please"}), 400)
+        if new_user.save_to_db():
+            print(new_user)
+            message = 'User Created Successfuly'
+            status_code = 201
+            status_msg = 'Success'
 
-        if re.compile('[!@#$%^&*:;?><.0-9]').match(args['username']):
-            return make_response(jsonify({"message":
-                                          "Invalid characters not allowed"}
-                                         ), 400)
+        else:
+            message = 'User Not Created.'
+            if len(new_user.errors) > 0:
+                message = new_user.errors
+            status_code = 400
+            status_msg = 'Fail'
 
-        if not re.match(r"([\w\.-]+)@([\w\.-]+)(\.[\w\.]+$)", args['email']):
-            return make_response(jsonify({"message":
-                                          "Enter valid email"}), 400)
-
-        if args['password'].strip() == "":
-            return make_response(jsonify({"message": "Enter password"}), 400)
-
-        if len(args['password']) < 5:
-            return make_response(jsonify({"message":
-                                          "Password is too short, < 5"}), 400)
-
-        if len(args['phone']) < 10:
-            return make_response(jsonify({"message":
-                                          "Phone number is too short"}), 400)
-
-        print(new_user)
-
-        USERS.append(new_user)
-        for user in USERS:
-            print(user.username)
-        # print(USERS)
-
-        return make_response(jsonify({
-            'message': 'User successfull created with id: ' + new_user.get_id()
-        }), 201)
+        return make_response(jsonify({'Message': message, 'status': status_msg}), status_code)
 
 
 class Login(Resource):
@@ -76,30 +57,28 @@ class Login(Resource):
         self.reqparse.add_argument('password', type=str, required=True)
         super(Login, self).__init__()
 
-        args = self.reqparse.parse_args()
-
     def post(self):
+        _id = str(uuid.uuid1())
+
         """
         Allows users to login to their accounts
         """
-        args = self.reqparse.parse_args()
 
-        for user in USERS:
-            if user.username == args['username'] and user.password == args['password']:
-                # access_token = user.generate_token()
-                access_token = jwt.encode(
-                    {'usernme': user.username, 'exp': datetime.utcnow() +
-                     timedelta(minutes=40)}, "secret")
-                return make_response(jsonify({"token":
-                                              access_token.decode('UTF-8'),
-                                              "message": "User logged in"
-                                              }), 200)
-            return make_response(jsonify({"message":
-                                          "Check your password or username"}
-                                         ), 401)
-        return make_response(jsonify({"message":
-                                      "User not found. Please Sign Up."}), 404)
+        args = self.reqparse.parse_args()
+        users = User(args['username'])
+        print(args['username'])
+        result = users.select_from_db(args['username'])
+        print(result)
+
+        if result is not None:
+            user_object = User(result[0], result[1], result[2])
+            access_token = user_object.generate_token(_id)
+            return make_response(jsonify({'message': 'user successful logged in',
+                                          'token': access_token}))
+
+        return make_response(jsonify({'message': 'User not found. Please sign up'}), 400)
 
 
 api.add_resource(Signup, '/api/v1/auth/signup')
 api.add_resource(Login, '/api/v1/auth/login')
+# access_token = user.generate_token()

@@ -1,9 +1,13 @@
 import uuid
 import json
 import jwt
-from app.utility import RideOffers
+# from app.utility import RideOffers
 from datetime import datetime, timedelta
-from flask import jsonify, current_app
+from flask import jsonify, current_app, make_response
+import re
+from dbHandler import MyDatabase
+# from app.utility import validate_user_input
+db = MyDatabase()
 
 
 class User:
@@ -11,27 +15,13 @@ class User:
     Class to represent the User model
     """
 
-    def __init__(self, username, email=None, password=None, phone=None):
-        self.id = uuid.uuid4().hex
-        self.username = username
-        self.email = email
-        self.password = password
-        self.phone = phone
-
-    def get_id(self):
-        return self.id
-
-    def get_username(self):
-        return self.username
-
-    def get_email(self):
-        return self.email
-
-    def get_password(self):
-        return self.password
-
-    def get_phone(self):
-        return self.phone
+    def __init__(self, username, email="", password="", phone=""):
+        self.id = uuid.uuid4().hex.strip()
+        self.username = username.strip()
+        self.email = email.strip()
+        self.password = password.strip()
+        self.phone = phone.strip()
+        self.errors = []
 
     def to_json(self):
         return {
@@ -43,17 +33,25 @@ class User:
 
         }
 
-    def use_token(parser):
-        parser.add_argument('token', location='headers')
-        args = parser.parse_args()
-        if not args['token']:
-            return {"status": False, "message": "Token is missing"}
-        decoded = decode_token(args['token'])
-        if decoded["status"] == "Failure":
-            return {"status": False, "message": decoded["message"]}
-        return {"status": True, "decoded": decoded}
+    def save_to_db(self):
+        if validate_user_input(self, self.username, self.email, self.password,
+                               self.phone, self.errors):
+            sql = "INSERT INTO UserTable values('{}','{}','{}','{}','{}')".format(
+                self.id, self.username, self.email, self.password, self.phone)
+            return db.create_record(sql)
 
-    def generate_token(id):
+        return False
+
+    def select_from_db(self, username):
+        if validate_user_input(self, self.username,
+                               self.password, self.errors):
+            sql = "SELECT * FROM UserTable WHERE username = '{}'".format(
+                username)
+            print(sql)
+            return db.user_login(sql)
+        return False
+
+    def generate_token(self, id):
         """Generates the access token to be used as the Authorization header"""
 
         try:
@@ -74,7 +72,7 @@ class User:
             # return an error in string format if an exception occurs
             return str(e)
 
-    def decode_token(token):
+    def decode_token(self, token):
         """Decode the access token to get the payload and return
         id """
         try:
@@ -93,3 +91,39 @@ class User:
                 "status": "Failure",
                 "message": "Invalid token. Please register or login"
             })
+
+
+def use_token(self, parser):
+    """function to check for token"""
+    parser.add_argument('token', location='headers')
+    args = parser.parse_args()
+    if not args['token']:
+        return {"status": False, "message": "Token is missing"}
+    decoded = self.decode_token(args['token'])
+    if decoded["status"] == "Failure":
+        return {"status": False, "message": decoded["message"]}
+    return {"status": True, "decoded": decoded}
+
+
+def validate_user_input(self, username, email="", password="",
+                        phone="", errors=[]):
+
+    result = True
+
+    if re.compile('[!@#$%^&*:;?><.0-9]').match(username):
+        errors.append('Invalid characters not allowed')
+        result = False
+
+    if not re.match(r"([\w\.-]+)@([\w\.-]+)(\.[\w\.]+$)", email):
+        errors.append('Enter valid email')
+        result = False
+    if len(password) < 5:
+        errors.append('Password is too short')
+        result = False
+
+    if len(phone) < 10:
+        errors.append('Phone number is too short')
+        result = False
+
+    # todo make validation work
+    return True
