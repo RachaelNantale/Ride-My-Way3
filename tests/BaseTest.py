@@ -36,13 +36,20 @@ class BaseTest (unittest.TestCase):
             'password': '123abc'
         }
 
-    def test_login(self):
+    
+    def test_user_login(self):
         self.client().post('/api/v1/auth/signup',
                            content_type='application/json',
                            data=json.dumps(self.user_body))
-        self.client().post('/api/v1/auth/login',
-                           content_type='application/json',
-                           data=json.dumps(self.loginlist))
+        res = self.client().post('/api/v1/auth/login',
+                                 content_type='application/json',
+                                 data=json.dumps(self.loginlist))
+        # print("+++++++++++++++++++++++++++++++{}++++".format(res.data))
+        # resp_data = res.data
+        # # token = json.loads(resp_data).decode('utf-8')
+        # token = (resp_data).json()
+
+        print(res.data)
 
     def tearDown(self):
         db = MyDatabase()
