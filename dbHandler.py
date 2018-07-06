@@ -3,6 +3,10 @@ import os
 
 
 class MyDatabase():
+    dbname = 'ride'
+    conn = psycopg2.connect(
+        dbname=dbname, user='postgres', host='localhost', password='oscarkirex', port='5432')
+
     def __init__(self):
         dbname = ""
         if os.getenv("APP_SETTING") == "'testing'":
@@ -56,12 +60,15 @@ class MyDatabase():
         self.cur.execute(drop_rides_table)
 
     def create_record(self, sql):
+        if self.cur.execute(sql) is None:
+            return True
+        return False
+
+    def create_login(self, sql):
         self.cur.execute(sql)
         result = self.cur.fetchone()
-        print(result)
-
         return result
-       
+
     def user_login(self, sql):
         """
         User login
@@ -78,9 +85,13 @@ class MyDatabase():
         rides = self.cur.fetchall()
         my_rides = []
         for ride in rides:
-            my_dict = ({'id': ride[0], 'driver': ride[1],
-                        'pickup_point': ride[2], 'destination': [
-                3], 'time': [4], 'done': [5]})
+            my_dict = {}
+            my_dict['ride_id'] = ride[0]
+            my_dict['passenger'] = ride[1]
+            my_dict['pickup_point'] = ride[2]
+            my_dict['destination'] = ride[3]
+            my_dict['time'] = ride[4]
+            my_dict['done'] = ride[5]
             my_rides.append(my_dict)
         return rides
 
@@ -178,10 +189,3 @@ class MyDatabase():
 if __name__ == "__main__":
     ride = MyDatabase()
     ride.create_tables()
-    # ride.fetch_all('RequestTable')
-    # ride.fetch_one('RideTable')
-
-    # ride.create_record("UserTable", "(id, username,email,password, phone)",
-    #                    ('1yyqqqy', 'rachael', 'rachaelexample.com', '', '1111111111'))
-    # ride.create_record("RequestTable", "(request_id, ride_id, passenger,pickup_point,destination, time, status)",
-    #                    ('1yeq', '435f483e-7f1d-11e8-a4e7-70188b5e6545', 'rachael', 'Kamwokya', 'busia', '7pm', False))

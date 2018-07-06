@@ -1,10 +1,9 @@
 from flask import Flask, jsonify, abort, make_response, Blueprint
-from flask_restful import Api, Resource, reqparse, fields
+from flask_restful import Api, Resource, reqparse
 from app.api.models.ride import RideOffers
-from app.api.models.user import User, use_token
+from app.api.models.user import User
 import uuid
-from flask_jwt_extended import (
-    JWTManager, jwt_required, create_access_token, get_jwt_identity)
+from flask_jwt_extended import (jwt_required, create_access_token)
 from dbHandler import MyDatabase
 
 app_bp = Blueprint('app', __name__)
@@ -41,10 +40,6 @@ class RideofferList(Resource):
 
     @jwt_required
     def post(self):
-        # res = use_token(parser)
-        # if not res['status']:
-        #     return make_response(jsonify({"message": res['message']}), 400)
-
         args = self.reqparse.parse_args()
         ride = RideOffers(args['driver'], args['pickup_point'],
                           args['Destination'], args['Time'], False)
@@ -54,6 +49,9 @@ class RideofferList(Resource):
             status_code = 201
             status_msg = 'Success'
 
+            return make_response(jsonify({'Message': message,
+                                          'status': status_msg}), status_code)
+
         except Exception:
             message = 'Ride Not Created.'
             if len(ride.errors) > 0:
@@ -61,8 +59,8 @@ class RideofferList(Resource):
             status_code = 400
             status_msg = 'Fail'
 
-        return make_response(jsonify({'Message': message,
-                                      'status': status_msg}), status_code)
+            return make_response(jsonify({'Message': message,
+                                          'status': status_msg}), status_code)
 
 
 class Rideoffer(Resource):
@@ -109,6 +107,7 @@ class Rideoffer(Resource):
 
         return make_response(jsonify({'Message': message,
                                       'status': status_msg}), status_code)
+
     @jwt_required
     def delete(self, id):
         _id = str(uuid.uuid1())
