@@ -2,7 +2,6 @@ import uuid
 import json
 from flask import jsonify
 from dbHandler import MyDatabase
-# from app.utility import validate_ride_input
 
 
 db = MyDatabase()

@@ -1,11 +1,18 @@
 import psycopg2
+import os
 
 
 class MyDatabase():
     def __init__(self):
+        dbname = ""
+        if os.getenv("APP_SETTING") == "'testing'":
+            dbname = "ridetest_db"
+        else:
+            dbname = 'ride'
+
         try:
             self.conn = psycopg2.connect(
-                "dbname='ride' user='postgres' host='localhost' password='oscarkirex' port='5432'")
+                dbname=dbname, user='postgres', host='localhost', password='oscarkirex', port='5432')
 
             self.conn.autocommit = True
             self.cur = self.conn.cursor()
@@ -38,11 +45,23 @@ class MyDatabase():
         self.cur.execute(rides_table)
         self.cur.execute(request_table)
 
-    def create_record(self, sql):
-        if self.cur.execute(sql) is None:
-            return True
-        return False
+    def drop_tables(self):
+        drop_request_table = """DROP TABLE IF EXISTS RequestTable CASCADE"""
 
+        drop_rides_table = """DROP TABLE IF EXISTS RideTable CASCADE"""
+        drop_user_table = """DROP TABLE IF EXISTS UserTable CASCADE"""
+
+        self.cur.execute(drop_request_table)
+        self.cur.execute(drop_user_table)
+        self.cur.execute(drop_rides_table)
+
+    def create_record(self, sql):
+        self.cur.execute(sql)
+        result = self.cur.fetchone()
+        print(result)
+
+        return result
+       
     def user_login(self, sql):
         """
         User login
@@ -91,14 +110,16 @@ class MyDatabase():
             "SELECT * FROM RideTable WHERE id = '{}' ".format(id))
         ride = self.cur.fetchone()
         my_dict = {}
-        my_dict['id'] = ride[0]
-        my_dict['driver'] = ride[1]
-        my_dict['pickup_point'] = ride[2]
-        my_dict['destination'] = ride[3]
-        my_dict['time'] = ride[4]
-        my_dict['status'] = ride[5]
-        print(my_dict)
-        return my_dict
+        if ride:
+            my_dict['id'] = ride[0]
+            my_dict['driver'] = ride[1]
+            my_dict['pickup_point'] = ride[2]
+            my_dict['destination'] = ride[3]
+            my_dict['time'] = ride[4]
+            my_dict['status'] = ride[5]
+            print(my_dict)
+            return my_dict
+        return None
 
     def fetch_one_request_by_rideid(self, ride_id):
         self.cur.execute(

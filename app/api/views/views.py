@@ -1,8 +1,10 @@
 from flask import Flask, jsonify, abort, make_response, Blueprint
 from flask_restful import Api, Resource, reqparse, fields
 from app.api.models.ride import RideOffers
-from app.api.models.user import User
+from app.api.models.user import User, use_token
 import uuid
+from flask_jwt_extended import (
+    JWTManager, jwt_required, create_access_token, get_jwt_identity)
 from dbHandler import MyDatabase
 
 app_bp = Blueprint('app', __name__)
@@ -28,6 +30,7 @@ class RideofferList(Resource):
                                    location='json')
         super(RideofferList, self).__init__()
 
+    @jwt_required
     def get(self):
         _id = str(uuid.uuid1())
         result = db.fetch_all_rides(_id)
@@ -36,24 +39,24 @@ class RideofferList(Resource):
         else:
             return jsonify({'message': 'You have no requests'})
 
+    @jwt_required
     def post(self):
-        parser = reqparse.RequestParser()
-        res = User.use_token(parser)
-        if not res['status']:
-            return make_response(jsonify({"message": res['message']}), 400)
+        # res = use_token(parser)
+        # if not res['status']:
+        #     return make_response(jsonify({"message": res['message']}), 400)
 
+        args = self.reqparse.parse_args()
         ride = RideOffers(args['driver'], args['pickup_point'],
                           args['Destination'], args['Time'], False)
-
-        if ride.save_to_db():
+        try:
+            ride.save_to_db()
             message = 'Ride Created Successfuly'
             status_code = 201
             status_msg = 'Success'
 
-        else:
+        except Exception:
             message = 'Ride Not Created.'
             if len(ride.errors) > 0:
-                print(ride.errors)
                 message = ride.errors
             status_code = 400
             status_msg = 'Fail'
@@ -73,6 +76,7 @@ class Rideoffer(Resource):
         self.reqparse.add_argument('done', type=bool, location='json')
         super(Rideoffer, self).__init__()
 
+    @jwt_required
     def get(self, id):
         result = db.fetch_one_ride(id)
 
@@ -82,6 +86,7 @@ class Rideoffer(Resource):
         else:
             return jsonify({'message': 'You have no requests'})
 
+    @jwt_required
     def put(self, id):
         args = self.reqparse.parse_args()
         ride = RideOffers(args['driver'], args['pickup_point'],
@@ -104,7 +109,7 @@ class Rideoffer(Resource):
 
         return make_response(jsonify({'Message': message,
                                       'status': status_msg}), status_code)
-
+    @jwt_required
     def delete(self, id):
         _id = str(uuid.uuid1())
         db.delete_record(_id)

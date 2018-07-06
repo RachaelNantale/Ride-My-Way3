@@ -3,7 +3,8 @@ from flask_restful import Api, Resource, reqparse, fields
 from app.api.models.ride import RideOffers
 from app.api.models.user import User
 from app.api.models.request import RideRequests
-
+from flask_jwt_extended import (
+    JWTManager, jwt_required, create_access_token, get_jwt_identity)
 import uuid
 from dbHandler import MyDatabase
 
@@ -31,6 +32,7 @@ class RequestofferList(Resource):
                                    location='json')
         super(RequestofferList, self).__init__()
 
+    @jwt_required
     def get(self, ride_id):
         _id = str(uuid.uuid1())
         result = db.fetch_all_requests(ride_id)
@@ -39,13 +41,11 @@ class RequestofferList(Resource):
         else:
             return jsonify({'message': 'You have no requests'})
 
+    @jwt_required
     def post(self, ride_id):
         if ride_id:
             request = RideRequests(ride_id=ride_id)
             print(request)
-            # requests = db.fetch_one_request(ride_id)
-            # print(requests)
-            # for request in requests:
             args = self.reqparse.parse_args()
             request = RideRequests(
                 ride_id,
@@ -54,12 +54,6 @@ class RequestofferList(Resource):
                 args['Destination'],
                 args['Time'], False)
             print(request)
-            #     print('==========================')
-
-            #     if request in requests:
-            #         return make_response(jsonify({
-            #             'message': 'You already requested to join this ride'
-            #         }), 400)
             request.save_to_db()
             return make_response(jsonify({
                 'message': 'A request to join this ride has been sent'
@@ -80,6 +74,7 @@ class Requestoffer(Resource):
         self.reqparse.add_argument('status', type=bool, location='json')
         super(Requestoffer, self).__init__()
 
+    @jwt_required
     def get(self, request_id):
         result = db.fetch_one_request(request_id)
 
@@ -89,29 +84,31 @@ class Requestoffer(Resource):
         else:
             return jsonify({'message': 'You have no requests'}), 400
 
+    @jwt_required
     def put(self, ride_id, request_id):
+
         args = self.reqparse.parse_args()
-        if db.fetch_one_request(request_id) is None:
-            abort(404)
 
         status = args['status']
 
-        if requestss.modify_request_models(status, request_id):
-            message = 'Modified requests'
-            status_code = 201
+        if status == 1:
+            message = 'Approved request'
+            status_code = 200
             status_msg = 'Success'
 
+            return make_response(jsonify({'Message': message,
+                                          'status': status_msg}), status_code)
         else:
-            message = 'Sorry could not modify request.'
-            if len(status.errors) > 0:
-                message = status.errors
-            status_code = 400
-            status_msg = 'Fail'
+            message = 'Reject request.'
+            status_code = 200
+            status_msg = 'success'
 
         return make_response(jsonify({'Message': message,
                                       'status': status_msg}), status_code)
 
-api.add_resource(Requestoffer, '/api/v1/rides/<string:ride_id>/requests/<string:request_id>')
+
+api.add_resource(
+    Requestoffer, '/api/v1/rides/<string:ride_id>/requests/<string:request_id>')
 
 api.add_resource(RequestofferList, '/api/v1/rides/<string:ride_id>/requests')
 # api.add_resource(Requestoffer, '/api/v1/rides/<string:ride_id>/requests/<string:request_id>')

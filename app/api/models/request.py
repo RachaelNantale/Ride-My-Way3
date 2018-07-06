@@ -27,8 +27,8 @@ class RideRequests:
         json representation of the Ride model
         """
         return {
-            'Request id': self.request_id,
-            'Ride id': self.ride_id,
+            'request id': self.request_id,
+            'ride id': self.ride_id,
             'Passenger': self.passenger,
             'Pickup Point': self.pickup_point,
             'Destination': self.destination,
@@ -37,14 +37,14 @@ class RideRequests:
         }
 
     def save_to_db(self):
-        # if validate_ride_input(self,  self.passenger, self.pickup_point,
-        #                        self.destination, self.time, self.errors):
-        sql = "INSERT INTO RequestTable values('{}','{}','{}','{}','{}','{}','{}')".format(
-            self.request_id, self.ride_id, self.passenger,
-            self.pickup_point, self.destination, self.time, self.status)
-        result = db.create_record(sql)
-        return result
-        # return False
+        if validate_ride_input(self,  self.passenger, self.pickup_point,
+                               self.destination, self.time, self.errors):
+            sql = "INSERT INTO RequestTable values('{}','{}','{}','{}','{}','{}','{}')".format(
+                self.request_id, self.ride_id, self.passenger,
+                self.pickup_point, self.destination, self.time, self.status)
+            result = db.create_record(sql)
+            return result
+        return False
 
     def modify_request_models(self, status, request_id):
         if validate_ride_input(self, self.passenger, self.pickup_point,
@@ -83,7 +83,4 @@ def validate_ride_input(self, passenger="", pickup_point="",
         self.errors.append(
             'Time input must be provided and should be between 3 and 10 characters long and dont use symbols')
         result = False
-
-    # if self.time.isalnum() is False:
-    #     result = False
     return result
