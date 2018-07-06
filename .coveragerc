@@ -38,4 +38,4 @@ omit =
     *typing.py
     */home/travis/virtualenv/*
     *jwt/*
-*psycopg2/*
+    *psycopg2/*

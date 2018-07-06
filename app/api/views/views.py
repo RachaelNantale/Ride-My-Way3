@@ -1,10 +1,9 @@
 from flask import Flask, jsonify, abort, make_response, Blueprint
-from flask_restful import Api, Resource, reqparse, fields
+from flask_restful import Api, Resource, reqparse
 from app.api.models.ride import RideOffers
-from app.api.models.user import User, use_token
+from app.api.models.user import User
 import uuid
-from flask_jwt_extended import (
-    JWTManager, jwt_required, create_access_token, get_jwt_identity)
+from flask_jwt_extended import (jwt_required, create_access_token)
 from dbHandler import MyDatabase
 
 app_bp = Blueprint('app', __name__)

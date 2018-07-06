@@ -18,7 +18,7 @@ class User:
         self.username = username.strip(" ")
         self.email = email.strip(" ")
         self.password = password.strip(" ")
-        self.phone = phone.strip(" ")
+        self.phone = phone
         self.errors = []
 
     def to_json(self):
@@ -36,7 +36,7 @@ class User:
                                self.phone, self.errors):
             sql = "INSERT INTO UserTable values('{}','{}','{}','{}','{}')RETURNING id".format(
                 self.id, self.username, self.email, self.password, self.phone)
-            return db.create_record(sql)
+            return db.create_login(sql)
 
         return False
 
@@ -48,59 +48,6 @@ class User:
             print(sql)
             return db.user_login(sql)
         return False
-
-    def generate_token(self, id):
-        """Generates the access token to be used as the Authorization header"""
-
-        try:
-            # set up a payload with an expiration time
-            payload = {
-                'exp': datetime.utcnow() + timedelta(minutes=40),
-                'iat': datetime.utcnow(),
-                'sub': id
-            }
-            jwt_string = jwt.encode(
-                payload,
-                'secret',
-                algorithm='HS256'
-            ).decode('UTF-8')
-            return jwt_string
-
-        except Exception as e:
-            # return an error in string format if an exception occurs
-            return str(e)
-
-    def decode_token(self, token):
-        """Decode the access token to get the payload and return
-        id """
-        try:
-            payload = jwt.decode(token, 'secret')
-            return jsonify({
-                "id": payload['sub'],
-                "status": "Success"
-            })
-        except jwt.ExpiredSignatureError:
-            return jsonify({
-                "status": "Failure",
-                "message": "Expired token. Please log in to get a new token"
-            })
-        except jwt.InvalidTokenError:
-            return jsonify({
-                "status": "Failure",
-                "message": "Invalid token. Please register or login"
-            })
-
-
-def use_token(self, parser):
-    """function to check for token"""
-    parser.add_argument('token', location='headers')
-    args = parser.parse_args()
-    if not args['token']:
-        return {"status": False, "message": "Token is missing"}
-    decoded = self.decode_token(args['token'])
-    if decoded["status"] == "Failure":
-        return {"status": False, "message": decoded["message"]}
-    return {"status": True, "decoded": decoded}
 
 
 def validate_user_input(self, username="", email="", password="",
@@ -123,5 +70,4 @@ def validate_user_input(self, username="", email="", password="",
         errors.append('Phone number is too short')
         result = False
 
-    # todo make validation work
     return True

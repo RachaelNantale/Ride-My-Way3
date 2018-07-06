@@ -5,7 +5,7 @@ import os
 class MyDatabase():
     dbname = 'ride'
     conn = psycopg2.connect(
-                dbname=dbname, user='postgres', host='localhost', password='oscarkirex', port='5432')
+        dbname=dbname, user='postgres', host='localhost', password='oscarkirex', port='5432')
 
     def __init__(self):
         dbname = ""
@@ -85,9 +85,13 @@ class MyDatabase():
         rides = self.cur.fetchall()
         my_rides = []
         for ride in rides:
-            my_dict = ({'id': ride[0], 'driver': ride[1],
-                        'pickup_point': ride[2], 'destination': [
-                3], 'time': [4], 'done': [5]})
+            my_dict = {}
+            my_dict['ride_id'] = ride[0]
+            my_dict['passenger'] = ride[1]
+            my_dict['pickup_point'] = ride[2]
+            my_dict['destination'] = ride[3]
+            my_dict['time'] = ride[4]
+            my_dict['done'] = ride[5]
             my_rides.append(my_dict)
         return rides
 
@@ -185,4 +189,3 @@ class MyDatabase():
 if __name__ == "__main__":
     ride = MyDatabase()
     ride.create_tables()
-    
